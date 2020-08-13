@@ -1,4 +1,4 @@
-package com.spring.wiremock.thirdparty.model.response;
+package com.spring.wiremock.model.response;
 
 import com.spring.wiremock.enumeration.PaymentStatusEnum;
 import lombok.Builder;
@@ -8,7 +8,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class PaymentResponse {
+public class BookingPaymentResponse {
+    private String bookingId;
     private String paymentId;
     private PaymentStatusEnum status;
 }

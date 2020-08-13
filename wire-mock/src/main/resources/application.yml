@@ -26,3 +26,8 @@ spring:
   jackson:
     deserialization:
       fail-on-unknown-properties: true
+
+third-party:
+  base-url: http://localhost:8585
+  version: v1
+  trace-holder: 5000.00
