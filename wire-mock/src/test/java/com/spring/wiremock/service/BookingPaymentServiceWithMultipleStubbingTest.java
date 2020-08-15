@@ -19,10 +19,7 @@ import com.spring.wiremock.thirdparty.service.impl.PaymentServiceImpl;
 import com.spring.wiremock.util.Constants;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.client.RestTemplate;
@@ -33,14 +30,12 @@ import java.time.LocalDate;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.put;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class BookingPaymentServiceWithSingleStubbingTest {
+public class BookingPaymentServiceWithMultipleStubbingTest {
     @Autowired
     private ThirdPartyProperties thirdPartyProperties;
     @Autowired
@@ -63,64 +58,13 @@ public class BookingPaymentServiceWithSingleStubbingTest {
     }
 
     /***
-     * Single third party call mocking using wire mock
+     * Multiple third party call mocking using wire mock
      */
-    @Order(1)
-    @Test
-    void updatePaymentTest() {
-
-        BookingPaymentRequest request = BookingPaymentRequest.builder()
-                .bookingId("1234")
-                .amount(new BigDecimal("2500"))
-                .cardDetails(CardDetails.builder()
-                        .bank("UOB")
-                        .expiry(LocalDate.of(2024, 10, 25))
-                        .number("1234-3245-4325-1289")
-                        .build())
-                .build();
-
-        PaymentRequest paymentRequest = PaymentRequest.builder()
-                .paymentId("2020081423104000067")
-                .cardNumber(request.getCardDetails().getNumber())
-                .bank(request.getCardDetails().getBank())
-                .cardExpiryDate(request.getCardDetails().getExpiry())
-                .amount(request.getAmount())
-                .build();
-
-        PaymentResponse expectedPaymentResponse = PaymentResponse.builder()
-                .paymentId(paymentRequest.getPaymentId())
-                .status(PaymentStatusEnum.SUCCESS)
-                .build();
-
-        //given
-        StringBuilder updateUrlPath = new StringBuilder(Constants.FORWARD_SLASH)
-                .append(this.thirdPartyProperties.getVersion())
-                .append("/payments");
-
-
-        this.wireMockServer.stubFor(put(urlPathEqualTo(updateUrlPath.toString()))
-                .withRequestBody(equalToJson(this.jacksonMapper.convertObjectToJson(paymentRequest)))
-                .willReturn(okJson(this.jacksonMapper.convertObjectToJson(expectedPaymentResponse)))
-        );
-
-        // when
-        BookingPaymentResponse response = this.bookingPaymentService.updatePayment(request, "2020081423104000067");
-
-        //then
-        assertThat(response.getBookingId()).isEqualTo(request.getBookingId());
-        assertThat(response.getPaymentId()).isEqualTo(expectedPaymentResponse.getPaymentId());
-        assertThat(response.getStatus()).isEqualTo(expectedPaymentResponse.getStatus());
-    }
-
-    /***
-     * Single third party call when card number is blacklisted mocking using wire mock
-     */
-    @Order(2)
     @Test
     void makePaymentTest() {
 
         BookingPaymentRequest request = BookingPaymentRequest.builder()
-                .bookingId("1236")
+                .bookingId("1235")
                 .amount(new BigDecimal("5000"))
                 .cardDetails(CardDetails.builder()
                         .bank("UOB")
@@ -129,13 +73,25 @@ public class BookingPaymentServiceWithSingleStubbingTest {
                         .build())
                 .build();
 
+        PaymentRequest paymentRequest = PaymentRequest.builder()
+                .cardNumber(request.getCardDetails().getNumber())
+                .bank(request.getCardDetails().getBank())
+                .cardExpiryDate(request.getCardDetails().getExpiry())
+                .amount(request.getAmount())
+                .build();
+
+        PaymentResponse expectedPaymentResponse = PaymentResponse.builder()
+                .paymentId("2020081423104000068")
+                .status(PaymentStatusEnum.SUCCESS)
+                .build();
+
         FraudCheckRequest fraudCheckRequest = FraudCheckRequest.builder()
                 .cardNumber(request.getCardDetails().getNumber())
                 .bank(request.getCardDetails().getBank())
                 .build();
 
         FraudCheckResponse expectedFraudCheckResponse = FraudCheckResponse.builder()
-                .blacklisted(true)
+                .blacklisted(false)
                 .build();
 
         //given
@@ -143,18 +99,29 @@ public class BookingPaymentServiceWithSingleStubbingTest {
                 .append(this.thirdPartyProperties.getVersion())
                 .append("/fraudCheck");
 
+        StringBuilder paymentUrlPath = new StringBuilder(Constants.FORWARD_SLASH)
+                .append(this.thirdPartyProperties.getVersion())
+                .append("/payments");
+
         // Stubbing fraud check third party call
         this.wireMockServer.stubFor(post(urlPathEqualTo(fraudUrlPath.toString()))
                 .withRequestBody(equalToJson(this.jacksonMapper.convertObjectToJson(fraudCheckRequest)))
                 .willReturn(okJson(this.jacksonMapper.convertObjectToJson(expectedFraudCheckResponse))));
+
+        // Stubbing make payment third party call
+        this.wireMockServer.stubFor(post(urlPathEqualTo(paymentUrlPath.toString()))
+                .withRequestBody(equalToJson(this.jacksonMapper.convertObjectToJson(paymentRequest)))
+                .willReturn(okJson(this.jacksonMapper.convertObjectToJson(expectedPaymentResponse)))
+        );
 
         // when
         BookingPaymentResponse response = this.bookingPaymentService.makePayment(request);
 
         //then
         assertThat(response.getBookingId()).isEqualTo(request.getBookingId());
-        assertNull(response.getPaymentId());
-        assertThat(response.getStatus()).isEqualTo(PaymentStatusEnum.REJECTED);
+        assertNotNull(response.getPaymentId());
+        assertThat(response.getPaymentId()).isEqualTo(expectedPaymentResponse.getPaymentId());
+        assertThat(response.getStatus()).isEqualTo(PaymentStatusEnum.SUCCESS);
     }
 
     @AfterEach

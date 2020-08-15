@@ -42,12 +42,13 @@ public class BookingPaymentServiceImpl implements BookingPaymentService {
                     .build();
             FraudCheckResponse fraudCheckResponse = this.fraudService.checkFraudStatus(fraudCheckRequest);
 
-            if(fraudCheckResponse.isBlacklisted())
+            if(fraudCheckResponse.isBlacklisted()) {
                 LOG.info("Card number is back listed");
                 return BookingPaymentResponse.builder()
                         .bookingId(bookingPaymentRequest.getBookingId())
                         .status(PaymentStatusEnum.REJECTED)
                         .build();
+            }
         }
 
         PaymentRequest paymentRequest = PaymentRequest.builder()
