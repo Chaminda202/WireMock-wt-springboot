@@ -7,7 +7,6 @@ import com.spring.wiremock.thirdparty.model.response.PaymentResponse;
 import com.spring.wiremock.thirdparty.service.PaymentService;
 import com.spring.wiremock.util.CommonUtil;
 import com.spring.wiremock.util.Constants;
-import com.spring.wiremock.util.JacksonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -44,21 +43,21 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentResponse makePayment(PaymentRequest paymentRequest) {
-        LOG.info("Start make payment third party call {}", JacksonUtil.convertObjectToJson(paymentRequest));
-        HttpEntity<PaymentRequest> entity = new HttpEntity<>(paymentRequest, CommonUtil.createJsonHttpHeader());
+        LOG.info("Start make payment third party call {}", this.jacksonMapper.convertObjectToJson(paymentRequest));
+        HttpEntity<String> entity = new HttpEntity<>(this.jacksonMapper.convertObjectToJson(paymentRequest), CommonUtil.createJsonHttpHeader());
         ResponseEntity<PaymentResponse> responseEntity = restTemplate.exchange(this.paymentUrl, HttpMethod.POST, entity,
                 PaymentResponse.class);
-        LOG.info("End make payment third party call {}", JacksonUtil.convertObjectToJson(responseEntity.getBody()));
+        LOG.info("End make payment third party call {}", this.jacksonMapper.convertObjectToJson(responseEntity.getBody()));
         return responseEntity.getBody();
     }
 
     @Override
     public PaymentResponse updatePayment(PaymentRequest paymentRequest) {
-        LOG.info("Start update payment third party call {}", JacksonUtil.convertObjectToJson(paymentRequest));
+        LOG.info("Start update payment third party call {}", this.jacksonMapper.convertObjectToJson(paymentRequest));
         HttpEntity<String> entity = new HttpEntity<>(this.jacksonMapper.convertObjectToJson(paymentRequest), CommonUtil.createJsonHttpHeader());
         ResponseEntity<PaymentResponse> responseEntity = restTemplate.exchange(this.paymentUrl, HttpMethod.PUT, entity,
                 PaymentResponse.class);
-        LOG.info("End update payment third party call {}", JacksonUtil.convertObjectToJson(responseEntity.getBody()));
+        LOG.info("End update payment third party call {}", this.jacksonMapper.convertObjectToJson(responseEntity.getBody()));
         return responseEntity.getBody();
         /*PaymentResponse paymentResponse = this.restTemplate.postForObject(this.paymentUrl, this.jacksonMapper.convertObjectToJson(paymentRequest), PaymentResponse.class);
         return paymentResponse;*/

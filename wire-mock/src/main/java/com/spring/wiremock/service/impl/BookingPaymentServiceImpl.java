@@ -1,5 +1,6 @@
 package com.spring.wiremock.service.impl;
 
+import com.spring.wiremock.config.JacksonMapper;
 import com.spring.wiremock.config.ThirdPartyProperties;
 import com.spring.wiremock.enumeration.PaymentStatusEnum;
 import com.spring.wiremock.model.request.BatchPaymentRequest;
@@ -12,7 +13,6 @@ import com.spring.wiremock.thirdparty.model.response.FraudCheckResponse;
 import com.spring.wiremock.thirdparty.model.response.PaymentResponse;
 import com.spring.wiremock.thirdparty.service.FraudService;
 import com.spring.wiremock.thirdparty.service.PaymentService;
-import com.spring.wiremock.util.JacksonUtil;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,10 +29,11 @@ public class BookingPaymentServiceImpl implements BookingPaymentService {
     private final PaymentService paymentService;
     private final FraudService fraudService;
     private final ThirdPartyProperties thirdPartyProperties;
+    private final JacksonMapper jacksonMapper;
 
     @Override
     public BookingPaymentResponse makePayment(BookingPaymentRequest bookingPaymentRequest) {
-        LOG.info("Start to  call make payment in booking service {}", JacksonUtil.convertObjectToJson(bookingPaymentRequest));
+        LOG.info("Start to  call make payment in booking service {}", this.jacksonMapper.convertObjectToJson(bookingPaymentRequest));
         if(this.thirdPartyProperties.getTraceHolder().compareTo(bookingPaymentRequest.getAmount()) < 0) {
             LOG.info("Payment amount is greater than define trace holder limit");
             FraudCheckRequest fraudCheckRequest = FraudCheckRequest.builder()
@@ -67,7 +68,7 @@ public class BookingPaymentServiceImpl implements BookingPaymentService {
     @Override
     public BookingPaymentResponse updatePayment(BookingPaymentRequest bookingPaymentRequest, String paymentId) {
         LOG.info("Start to  call update payment in booking service payload - {} payment id - {}",
-                JacksonUtil.convertObjectToJson(bookingPaymentRequest),  paymentId);
+                this.jacksonMapper.convertObjectToJson(bookingPaymentRequest),  paymentId);
         PaymentRequest paymentRequest = PaymentRequest.builder()
                 .paymentId(paymentId)
                 .cardNumber(bookingPaymentRequest.getCardDetails().getNumber())

@@ -1,12 +1,12 @@
 package com.spring.wiremock.thirdparty.service.impl;
 
+import com.spring.wiremock.config.JacksonMapper;
 import com.spring.wiremock.config.ThirdPartyProperties;
 import com.spring.wiremock.thirdparty.model.request.FraudCheckRequest;
 import com.spring.wiremock.thirdparty.model.response.FraudCheckResponse;
 import com.spring.wiremock.thirdparty.service.FraudService;
 import com.spring.wiremock.util.CommonUtil;
 import com.spring.wiremock.util.Constants;
-import com.spring.wiremock.util.JacksonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -20,12 +20,13 @@ public class FraudServiceImpl implements FraudService {
     private static final Logger LOG = LoggerFactory.getLogger(FraudServiceImpl.class);
     private final ThirdPartyProperties thirdPartyProperties;
     private final RestTemplate restTemplate;
+    private final JacksonMapper jacksonMapper;
     private String fraudCheckUrl;
-    private static final String FORWARD_SLASH = "/";
 
-    public FraudServiceImpl(ThirdPartyProperties thirdPartyProperties, RestTemplate restTemplate) {
+    public FraudServiceImpl(ThirdPartyProperties thirdPartyProperties, RestTemplate restTemplate, JacksonMapper jacksonMapper) {
         this.thirdPartyProperties = thirdPartyProperties;
         this.restTemplate = restTemplate;
+        this.jacksonMapper = jacksonMapper;
         StringBuilder url = new StringBuilder() // should be refactor way of url building. Cos duplicate the code
             .append(this.thirdPartyProperties.getProtocol())
             .append(Constants.COLON)
@@ -41,11 +42,11 @@ public class FraudServiceImpl implements FraudService {
     }
     @Override
     public FraudCheckResponse checkFraudStatus(FraudCheckRequest fraudCheckRequest) {
-        LOG.info("Start fraud check third party call {}", JacksonUtil.convertObjectToJson(fraudCheckRequest));
-        HttpEntity<FraudCheckRequest> entity = new HttpEntity<>(fraudCheckRequest, CommonUtil.createJsonHttpHeader());
+        LOG.info("Start fraud check third party call {}", this.jacksonMapper.convertObjectToJson(fraudCheckRequest));
+        HttpEntity<String> entity = new HttpEntity<>(this.jacksonMapper.convertObjectToJson(fraudCheckRequest), CommonUtil.createJsonHttpHeader());
         ResponseEntity<FraudCheckResponse> responseEntity = restTemplate.exchange(this.fraudCheckUrl, HttpMethod.POST, entity,
                 FraudCheckResponse.class);
-        LOG.info("End fraud check third party call {}", JacksonUtil.convertObjectToJson(responseEntity.getBody()));
+        LOG.info("End fraud check third party call {}", this.jacksonMapper.convertObjectToJson(responseEntity.getBody()));
         return responseEntity.getBody();
     }
 }

@@ -50,15 +50,15 @@ public class BookingPaymentServiceWithSingleStubbingTest {
         //configureFor(this.thirdPartyProperties.getHost(), this.thirdPartyProperties.getPort());
         this.wireMockServer.start();
         PaymentService paymentService = new PaymentServiceImpl(thirdPartyProperties, restTemplate, jacksonMapper);
-        FraudService fraudService = new FraudServiceImpl(thirdPartyProperties, restTemplate);
-        this.bookingPaymentService = new BookingPaymentServiceImpl(paymentService, fraudService, thirdPartyProperties);
+        FraudService fraudService = new FraudServiceImpl(thirdPartyProperties, restTemplate, jacksonMapper);
+        this.bookingPaymentService = new BookingPaymentServiceImpl(paymentService, fraudService, thirdPartyProperties, jacksonMapper);
     }
 
     /***
      * Single third party call mocking using wire mock
      */
     @Test
-    void makePaymentTest() {
+    void updatePaymentTest() {
 
         BookingPaymentRequest request = BookingPaymentRequest.builder()
                 .bookingId("1234")
