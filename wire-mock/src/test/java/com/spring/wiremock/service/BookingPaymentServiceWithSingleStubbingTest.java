@@ -33,7 +33,9 @@ import java.time.LocalDate;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.put;
+import static com.github.tomakehurst.wiremock.client.WireMock.putRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -110,6 +112,10 @@ public class BookingPaymentServiceWithSingleStubbingTest {
         assertThat(response.getBookingId()).isEqualTo(request.getBookingId());
         assertThat(response.getPaymentId()).isEqualTo(expectedPaymentResponse.getPaymentId());
         assertThat(response.getStatus()).isEqualTo(expectedPaymentResponse.getStatus());
+
+        // verify
+        this.wireMockServer.verify(putRequestedFor(urlPathEqualTo(updateUrlPath.toString()))
+                .withRequestBody(equalToJson(this.jacksonMapper.convertObjectToJson(paymentRequest))));
     }
 
     /***
@@ -155,6 +161,10 @@ public class BookingPaymentServiceWithSingleStubbingTest {
         assertThat(response.getBookingId()).isEqualTo(request.getBookingId());
         assertNull(response.getPaymentId());
         assertThat(response.getStatus()).isEqualTo(PaymentStatusEnum.REJECTED);
+
+        // verify
+        this.wireMockServer.verify(1, postRequestedFor(urlPathEqualTo(fraudUrlPath.toString()))
+                .withRequestBody(equalToJson(this.jacksonMapper.convertObjectToJson(fraudCheckRequest))));
     }
 
     @AfterEach

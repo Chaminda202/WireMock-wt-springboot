@@ -30,6 +30,7 @@ import java.time.LocalDate;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -122,6 +123,13 @@ public class BookingPaymentServiceWithMultipleStubbingTest {
         assertNotNull(response.getPaymentId());
         assertThat(response.getPaymentId()).isEqualTo(expectedPaymentResponse.getPaymentId());
         assertThat(response.getStatus()).isEqualTo(PaymentStatusEnum.SUCCESS);
+
+        // verify
+        this.wireMockServer.verify(1, postRequestedFor(urlPathEqualTo(paymentUrlPath.toString()))
+                .withRequestBody(equalToJson(this.jacksonMapper.convertObjectToJson(paymentRequest))));
+
+        this.wireMockServer.verify(1, postRequestedFor(urlPathEqualTo(fraudUrlPath.toString()))
+                .withRequestBody(equalToJson(this.jacksonMapper.convertObjectToJson(fraudCheckRequest))));
     }
 
     @AfterEach

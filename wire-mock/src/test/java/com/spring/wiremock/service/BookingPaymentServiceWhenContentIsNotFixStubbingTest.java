@@ -31,9 +31,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -132,6 +134,10 @@ public class BookingPaymentServiceWhenContentIsNotFixStubbingTest {
             assertNotNull(response.getBookingId());
             assertThat(response.getStatus()).isEqualTo(PaymentStatusEnum.SUCCESS);
         });
+
+        // verify
+        this.wireMockServer.verify(5, postRequestedFor(urlPathEqualTo(paymentUrlPath.toString())));
+        this.wireMockServer.verify(postRequestedFor(urlPathEqualTo(fraudUrlPath.toString())));
     }
 
     private BookingPaymentRequest generateBookingPaymentRequest(int i) {
