@@ -5,6 +5,7 @@ import com.spring.wiremock.thirdparty.model.request.FraudCheckRequest;
 import com.spring.wiremock.thirdparty.model.response.FraudCheckResponse;
 import com.spring.wiremock.thirdparty.service.FraudService;
 import com.spring.wiremock.util.CommonUtil;
+import com.spring.wiremock.util.Constants;
 import com.spring.wiremock.util.JacksonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +26,16 @@ public class FraudServiceImpl implements FraudService {
     public FraudServiceImpl(ThirdPartyProperties thirdPartyProperties, RestTemplate restTemplate) {
         this.thirdPartyProperties = thirdPartyProperties;
         this.restTemplate = restTemplate;
-        StringBuilder url = new StringBuilder()
-            .append(this.thirdPartyProperties.getBaseUrl())
-            .append(FORWARD_SLASH)
+        StringBuilder url = new StringBuilder() // should be refactor way of url building. Cos duplicate the code
+            .append(this.thirdPartyProperties.getProtocol())
+            .append(Constants.COLON)
+            .append(Constants.DOUBLE_FORWARD_SLASH)
+            .append(this.thirdPartyProperties.getHost())
+            .append(Constants.COLON)
+            .append(this.thirdPartyProperties.getPort())
+            .append(Constants.FORWARD_SLASH)
             .append(this.thirdPartyProperties.getVersion())
-            .append(FORWARD_SLASH)
+            .append(Constants.FORWARD_SLASH)
             .append("fraudCheck");
         this.fraudCheckUrl = url.toString();
     }

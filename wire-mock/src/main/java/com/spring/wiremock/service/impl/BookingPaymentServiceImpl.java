@@ -66,8 +66,8 @@ public class BookingPaymentServiceImpl implements BookingPaymentService {
 
     @Override
     public BookingPaymentResponse updatePayment(BookingPaymentRequest bookingPaymentRequest, String paymentId) {
-        LOG.info("Start to  call update payment in booking service payload - {} payment id - {}", paymentId,
-                JacksonUtil.convertObjectToJson(bookingPaymentRequest));
+        LOG.info("Start to  call update payment in booking service payload - {} payment id - {}",
+                JacksonUtil.convertObjectToJson(bookingPaymentRequest),  paymentId);
         PaymentRequest paymentRequest = PaymentRequest.builder()
                 .paymentId(paymentId)
                 .cardNumber(bookingPaymentRequest.getCardDetails().getNumber())

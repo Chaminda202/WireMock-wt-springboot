@@ -10,7 +10,9 @@ import java.math.BigDecimal;
 @ConfigurationProperties(prefix = "third-party", ignoreUnknownFields = false)
 @Data
 public class ThirdPartyProperties {
-    private String baseUrl;
+    private String protocol;
+    private String host;
+    private int port;
     private String version;
     private BigDecimal traceHolder;
 }
