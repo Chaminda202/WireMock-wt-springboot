@@ -1,0 +1,27 @@
+{
+  "request": {
+    "urlPattern": "/saveUser",
+    "method": "POST",
+    "bodyPatterns": [
+      {
+        "equalToJson": {
+          "name": "Tom",
+          "age": 25,
+          "occupation": "Software Engineer"
+        }
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": 1,
+      "name": "Tom",
+      "age": 25,
+      "occupation": "Software Engineer"
+    }
+  }
+}

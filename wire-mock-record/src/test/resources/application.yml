@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: wire-mock
+    local-date-format: dd-MM-yyyy
+
+  datasource:
+    driverClassName: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://localhost:3306/wire-mock-test-db?createDatabaseIfNotExist=true
+    username: root
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+  main:
+    allow-bean-definition-overriding: true
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+    serialization:
+      write_dates_as_timestamps: false
+
+third-party:
+  protocol: http
+  host: localhost
+  port: 8090
+  version: v1
+  trace-holder: 4000.00

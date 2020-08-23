@@ -1,0 +1,58 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "urlPattern": "/saveUser1",
+        "method": "POST",
+        "bodyPatterns": [
+          {
+            "equalToJson": {
+              "name": "Tom",
+              "age": 25,
+              "occupation": "Software Engineer"
+            }
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": 1,
+          "name": "Tom",
+          "age": 25,
+          "occupation": "Software Engineer"
+        }
+      }
+    },
+    {
+      "request": {
+        "urlPattern": "/saveUser2",
+        "method": "POST",
+        "bodyPatterns": [
+          {
+            "equalToJson": {
+              "name": "Sam",
+              "age": 21,
+              "occupation": "QA"
+            }
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": 2,
+          "name": "Sam",
+          "age": 25,
+          "occupation": "QA"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/one"
+      },
+      "response": {
+        "status": 200,
+		"body": "hello world....!!!"
+      }
+    },
+    {
+      "request": {
+		"method": "GET",
+		"url": "/two"
+      },
+      "response": {
+        "jsonBody": {
+			"message": "Multiple stubbing example"
+		}
+      }
+    }
+  ]
+}
